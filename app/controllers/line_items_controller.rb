@@ -33,7 +33,8 @@ class LineItemsController < ApplicationController
 
     respond_to do |format|
       if @line_item.save
-        format.html { redirect_to @line_item.cart }
+        format.html { redirect_to store_url }
+        format.js { @current_item = @line_item }
         format.json { render action: 'show',
           status: :created, location: @line_item }
       else
@@ -61,26 +62,9 @@ class LineItemsController < ApplicationController
   # DELETE /line_items/1
   # DELETE /line_items/1.json
   def destroy
-    @cart = Cart.find(session[:cart_id])
-    @line_item = LineItem.find(params[:id])
-    quantity = @line_item.quantity
-
-    if quantity > 1
-      quantity -= 1
-      @line_item.update_attribute(:quantity, quantity)
-    else
-      @line_item.destroy
-    end
-
+    @line_item.destroy
     respond_to do |format|
-      format.html {
-        if @cart.line_items.empty?
-          @cart.destroy
-          redirect_to store_path, notice: 'Your cart is currently empty'
-        else
-          redirect_to @cart
-        end
-      }
+      format.html { redirect_to line_items_url }
       format.json { head :no_content }
     end
   end
